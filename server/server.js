@@ -49,29 +49,16 @@ app.get('/todos/:id', (req, res) => {
 
 // DELETE /todos/:id
 app.delete('/todos/:id', (req,res) => {
-  // Get the id
   var id = req.params.id;
-
-  // Validate the id
   if (!ObjectID.isValid(id)) {
-    res.status(404).send();
+    return res.status(404).send();
   }
-
-  // Remove todo by id
   Todo.findByIdAndRemove(id).then((todo) => {
-
-    // success
-    // if no doc, send 404
     if (!todo) {
-      res.status(404).send();
+      return res.status(404).send();
     }
-
-    // if doc, send doc back with 200
-    res.send(todo);
+    res.send({todo});
   }).catch( (e) => {
-
-    // error
-    // 400 with empty body
     res.status(400).send();
   });
 });
