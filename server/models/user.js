@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 const bcrypt = require('bcryptjs');
 
-var UserSchema = mongoose.Schema({
+var UserSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
@@ -40,11 +40,11 @@ UserSchema.methods.toJSON = function () {
   return _.pick(userObject, ['_id', 'email']);
 };
 
-
 UserSchema.methods.generateAuthToken = function () {
   var user = this;
   var access = 'auth';
   var token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
+
   user.tokens.push({access, token});
 
   return user.save().then(() => {
@@ -52,7 +52,7 @@ UserSchema.methods.generateAuthToken = function () {
   });
 };
 
-UserSchema.methods.removeToken = function(token) {
+UserSchema.methods.removeToken = function (token) {
   var user = this;
 
   return user.update({
@@ -88,18 +88,17 @@ UserSchema.statics.findByCredentials = function (email, password) {
     }
 
     return new Promise((resolve, reject) => {
+      // Use bcrypt.compare to compare password and user.password
       bcrypt.compare(password, user.password, (err, res) => {
-
-        if(res) {
+        if (res) {
           resolve(user);
-        }else {
+        } else {
           reject();
         }
       });
     });
   });
 };
-
 
 UserSchema.pre('save', function (next) {
   var user = this;
@@ -114,9 +113,8 @@ UserSchema.pre('save', function (next) {
   } else {
     next();
   }
-
 });
 
 var User = mongoose.model('User', UserSchema);
 
-module.exports = {User};
+module.exports = {User}
